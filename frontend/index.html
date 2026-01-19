@@ -4,20 +4,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MECHANIC INC | Advanced Prober</title>
+    <title>MECHANIC | EXPLOITATION CORE</title>
     <link
-        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700&family=JetBrains+Mono:wght@400;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700;900&family=JetBrains+Mono:wght@400;700&display=swap"
         rel="stylesheet">
     <style>
         :root {
-            --bg: #050505;
-            --panel: #0a0a0a;
-            --accent: #ff4d00;
-            --accent-soft: rgba(255, 77, 0, 0.1);
+            --bg: #030305;
+            --panel: #08080a;
+            --accent: #ff003c;
+            /* Neon Red/Pink */
+            --accent-glow: rgba(255, 0, 60, 0.4);
+            --accent-soft: rgba(255, 0, 60, 0.1);
             --text: #ffffff;
-            --text-dim: #777;
-            --success: #00ffa3;
-            --error: #ff2a6d;
+            --text-dim: #4a4a4f;
+            --success: #00ffaa;
+            --warning: #ffcc00;
+            --danger: #ff003c;
+        }
+
+        * {
+            cursor: crosshair;
         }
 
         body {
@@ -30,371 +37,470 @@
             align-items: center;
             min-height: 100vh;
             overflow: hidden;
+            background-image:
+                radial-gradient(circle at 50% 50%, #101015 0%, transparent 100%),
+                linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
+                linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 100%, 100% 4px, 100% 100%;
         }
 
-        .main-grid {
-            display: grid;
-            grid-template-columns: 400px 600px;
-            gap: 30px;
-            width: 1000px;
-            height: 700px;
-            z-index: 10;
-        }
-
-        .panel {
-            background: var(--panel);
-            border: 1px solid #1a1a1a;
-            border-radius: 32px;
-            padding: 40px;
-            display: flex;
-            flex-direction: column;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .panel::before {
-            content: '';
-            position: absolute;
+        .scanline {
+            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
-            height: 4px;
-            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            height: 2px;
+            background: rgba(255, 255, 255, 0.05);
+            opacity: 0.1;
+            z-index: 100;
+            pointer-events: none;
+            animation: scanline 8s linear infinite;
+        }
+
+        @keyframes scanline {
+            0% {
+                transform: translateY(-100vh);
+            }
+
+            100% {
+                transform: translateY(100vh);
+            }
+        }
+
+        .main-container {
+            width: 1100px;
+            height: 750px;
+            display: grid;
+            grid-template-columns: 380px 1fr;
+            gap: 20px;
+            padding: 20px;
+            background: rgba(10, 10, 12, 0.8);
+            border: 1px solid #1a1a20;
+            border-radius: 4px;
+            /* Industrial Sharpness */
+            backdrop-filter: blur(20px);
+            position: relative;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 1);
+        }
+
+        .main-container::after {
+            content: 'UNIT-01 // MECHANIC ENGINE';
+            position: absolute;
+            bottom: -25px;
+            left: 0;
+            font-family: 'JetBrains Mono';
+            font-size: 0.6rem;
+            color: var(--text-dim);
+            letter-spacing: 2px;
+        }
+
+        .side-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            padding-right: 20px;
+            border-right: 1px solid #1a1a20;
         }
 
         h1 {
-            font-weight: 700;
-            font-size: 2.5rem;
+            font-weight: 900;
+            font-size: 3rem;
             margin: 0;
-            letter-spacing: -2px;
-            background: linear-gradient(to bottom, #fff, #444);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
+            letter-spacing: -3px;
+            font-style: italic;
+            color: #fff;
+            text-shadow: 2px 2px 0px var(--accent);
         }
 
-        .tagline {
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 4px;
-            color: var(--accent);
-            margin-bottom: 40px;
-            font-weight: 700;
+        .status-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: var(--success);
+            border-radius: 50%;
+            margin-right: 10px;
+            box-shadow: 0 0 10px var(--success);
+            animation: blink 1s infinite;
         }
 
-        .form-item {
-            margin-bottom: 25px;
+        @keyframes blink {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.3;
+            }
+        }
+
+        .input-box {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
         }
 
         label {
-            display: block;
-            font-size: 0.7rem;
+            font-family: 'JetBrains Mono';
+            font-size: 0.65rem;
+            color: var(--accent);
             text-transform: uppercase;
-            letter-spacing: 2px;
-            color: var(--text-dim);
-            margin-bottom: 10px;
-            font-weight: 700;
+            letter-spacing: 1px;
         }
 
         input {
-            width: 100%;
-            background: #111;
+            background: #000;
             border: 1px solid #222;
-            border-radius: 16px;
-            padding: 16px;
-            color: white;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.9rem;
-            box-sizing: border-box;
-            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 15px;
+            color: #fff;
+            font-family: 'JetBrains Mono';
+            font-size: 0.85rem;
+            transition: 0.2s;
+            border-radius: 2px;
         }
 
         input:focus {
             outline: none;
             border-color: var(--accent);
-            box-shadow: 0 0 20px var(--accent-soft);
-            background: #151515;
+            box-shadow: 0 0 15px var(--accent-soft);
         }
 
-        .btn-action {
-            width: 100%;
-            padding: 24px;
+        .control-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .btn-launch {
             background: var(--accent);
-            color: white;
+            color: #fff;
             border: none;
-            border-radius: 20px;
-            font-size: 1.1rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: 0.3s;
+            padding: 25px;
+            font-family: 'Outfit';
+            font-weight: 900;
+            font-size: 1.2rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
             margin-top: auto;
             position: relative;
-            overflow: hidden;
+            clip-path: polygon(0 0, 100% 0, 100% 70%, 90% 100%, 0 100%);
+            transition: 0.2s;
         }
 
-        .btn-action:hover {
-            box-shadow: 0 15px 30px var(--accent-soft);
-            transform: translateY(-2px);
+        .btn-launch:hover:not(:disabled) {
+            transform: scale(1.02);
+            filter: brightness(1.2);
+            box-shadow: 0 0 30px var(--accent-glow);
         }
 
-        .btn-action:active {
-            transform: translateY(0);
+        .btn-launch:active {
+            transform: scale(0.98);
         }
 
-        .btn-action:disabled {
-            background: #222;
-            color: #555;
-            cursor: not-allowed;
-            transform: none;
+        .btn-launch:disabled {
+            background: #1a1a1a;
+            color: #333;
+            clip-path: none;
         }
 
+        /* --- DASHBOARD --- */
         .dashboard {
             display: flex;
             flex-direction: column;
             gap: 20px;
         }
 
-        .stat-banner {
+        .stats-row {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
         }
 
-        .stat-box {
-            background: #0d0d0d;
-            border: 1px solid #1a1a1a;
-            border-radius: 24px;
-            padding: 25px;
-            display: flex;
-            flex-direction: column;
+        .stat-card {
+            background: #000;
+            border: 1px solid #1a1a20;
+            padding: 20px;
+            position: relative;
         }
 
-        .stat-label {
-            font-size: 0.75rem;
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--accent);
+        }
+
+        .stat-meta {
+            font-family: 'JetBrains Mono';
+            font-size: 0.6rem;
             color: var(--text-dim);
             text-transform: uppercase;
-            margin-bottom: 5px;
         }
 
         .stat-value {
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--success);
+            font-size: 2.5rem;
+            font-weight: 900;
+            margin-top: 5px;
+            font-family: 'JetBrains Mono';
         }
 
-        .console {
+        .console-container {
             flex-grow: 1;
-            background: #050505;
-            border: 1px solid #1a1a1a;
-            border-radius: 24px;
-            padding: 20px;
-            font-family: 'JetBrains Mono', monospace;
+            background: #000;
+            border: 1px solid #1a1a20;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .console-header {
+            background: #0a0a0f;
+            padding: 10px 15px;
+            font-family: 'JetBrains Mono';
+            font-size: 0.6rem;
+            color: var(--text-dim);
+            border-bottom: 1px solid #1a1a20;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        #console-output {
+            padding: 15px;
+            font-family: 'JetBrains Mono';
             font-size: 0.75rem;
-            color: #444;
+            color: #00ffaa;
             overflow-y: auto;
+            text-shadow: 0 0 5px rgba(0, 255, 170, 0.4);
             display: flex;
             flex-direction: column-reverse;
         }
 
-        .log-line {
-            margin-bottom: 5px;
-            line-height: 1.4;
-            border-left: 2px solid #222;
-            padding-left: 10px;
+        .log-entry {
+            margin-bottom: 4px;
         }
 
         .log-time {
-            color: #333;
+            color: #444;
             margin-right: 10px;
         }
 
-        .log-msg {
-            color: #888;
+        .log-tag {
+            font-weight: 700;
+            margin-right: 10px;
         }
 
-        .log-status-ok {
+        .tag-exe {
+            color: var(--warning);
+        }
+
+        .tag-res {
             color: var(--success);
         }
 
-        .log-status-err {
-            color: var(--error);
+        .tag-err {
+            color: var(--danger);
         }
 
-        .progress-bar {
+        .loading-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
             height: 4px;
-            background: #111;
-            border-radius: 4px;
-            overflow: hidden;
-            margin-top: 10px;
-            display: none;
-        }
-
-        .progress-fill {
-            height: 100%;
             background: var(--accent);
             width: 0%;
             transition: 0.3s;
+            box-shadow: 0 0 20px var(--accent-glow);
         }
 
-        /* Abstract Background */
-        .orb {
+        /* --- DECOR --- */
+        .corner-decor {
             position: absolute;
-            width: 600px;
-            height: 600px;
-            background: radial-gradient(circle, var(--accent-soft) 0%, transparent 70%);
-            z-index: -1;
-            filter: blur(80px);
-            animation: move 20s infinite alternate;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--accent);
         }
 
-        @keyframes move {
-            from {
-                transform: translate(-30%, -30%);
-            }
+        .c-tl {
+            top: -2px;
+            left: -2px;
+            border-right: none;
+            border-bottom: none;
+        }
 
-            to {
-                transform: translate(30%, 30%);
-            }
+        .c-tr {
+            top: -2px;
+            right: -2px;
+            border-left: none;
+            border-bottom: none;
+        }
+
+        .c-bl {
+            bottom: -2px;
+            left: -2px;
+            border-right: none;
+            border-top: none;
+        }
+
+        .c-br {
+            bottom: -2px;
+            right: -2px;
+            border-left: none;
+            border-top: none;
         }
     </style>
 </head>
 
 <body>
 
-    <div class="orb"></div>
+    <div class="scanline"></div>
 
-    <div class="main-grid">
-        <!-- Configuration Side -->
-        <div class="panel">
+    <div class="main-container">
+        <div class="c-tl corner-decor"></div>
+        <div class="c-tr corner-decor"></div>
+        <div class="c-bl corner-decor"></div>
+        <div class="c-br corner-decor"></div>
+
+        <!-- CONFIG -->
+        <div class="side-panel">
             <h1>MECHANIC</h1>
-            <p class="tagline">Engine v2.0</p>
-
-            <div class="form-item">
-                <label>Target Core URL</label>
-                <input type="text" id="url" value="https://google.com" placeholder="https://...">
+            <div style="font-size: 0.7rem; color: var(--text-dim); letter-spacing: 2px;">
+                <span class="status-dot"></span> SYSTEM ONLINE // V3.0
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                <div class="form-item">
-                    <label>Threads</label>
-                    <input type="number" id="concurrency" value="50">
+            <div class="input-box">
+                <label>Target Entry (URL or IP)</label>
+                <input type="text" id="target" value="1.1.1.1" placeholder="example.com">
+            </div>
+
+            <div class="control-grid">
+                <div class="input-box">
+                    <label>Workers</label>
+                    <input type="number" id="workers" value="100">
                 </div>
-                <div class="form-item">
-                    <label>Cycles</label>
-                    <input type="number" id="count" value="500">
+                <div class="input-box">
+                    <label>Requests</label>
+                    <input type="number" id="requests" value="1000">
                 </div>
             </div>
 
-            <div class="form-item">
-                <label>Auth / Node API URL</label>
-                <input type="text" id="nodeUrl" value="" placeholder="Koyeb URL here...">
+            <div class="input-box">
+                <label>Engine API Link</label>
+                <input type="text" id="apiLink" placeholder="https://koyeb-app-url">
             </div>
 
-            <button class="btn-action" id="runBtn">INITIALIZE ENGINE</button>
+            <button class="btn-launch" id="launchBtn">ENGAGE CORE</button>
         </div>
 
-        <!-- Dashboard Side -->
-        <div class="panel dashboard">
-            <div class="stat-banner">
-                <div class="stat-box">
-                    <span class="stat-label">Success Rate</span>
-                    <span class="stat-value" id="stat-ok">0%</span>
+        <!-- VISUALS -->
+        <div class="dashboard">
+            <div class="stats-row">
+                <div class="stat-card">
+                    <div class="stat-meta">Success / Loss</div>
+                    <div class="stat-value" id="res-rate">0%</div>
                 </div>
-                <div class="stat-box">
-                    <span class="stat-label">Avg Latency</span>
-                    <span class="stat-value" id="stat-lat">-- ms</span>
+                <div class="stat-card">
+                    <div class="stat-meta">Response Delay</div>
+                    <div class="stat-value" id="res-time">0<span style="font-size: 1rem">MS</span></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-meta">Total Objects</div>
+                    <div class="stat-value" id="res-count">0</div>
                 </div>
             </div>
 
-            <div class="progress-bar" id="pBar">
-                <div class="progress-fill" id="pFill"></div>
-            </div>
-
-            <div class="console" id="console">
-                <div class="log-line"><span class="log-time">[SYSTEM]</span><span class="log-msg">READY. Awaiting
-                        sequence...</span></div>
+            <div class="console-container">
+                <div class="console-header">
+                    <span>> TERMINAL_OUTPUT</span>
+                    <span id="uptime">00:00:00</span>
+                </div>
+                <div id="console-output">
+                    <div class="log-entry">AWAITING TARGET COMMAND...</div>
+                </div>
+                <div class="loading-bar" id="loadBar"></div>
             </div>
         </div>
     </div>
 
     <script>
-        const runBtn = document.getElementById('runBtn');
-        const consoleArea = document.getElementById('console');
-        const pBar = document.getElementById('pBar');
-        const pFill = document.getElementById('pFill');
+        const launchBtn = document.getElementById('launchBtn');
+        const consoleOut = document.getElementById('console-output');
+        const loadBar = document.getElementById('loadBar');
+        const apiInput = document.getElementById('apiLink');
 
-        const nodeUrlInput = document.getElementById('nodeUrl');
+        // Auto-save API Link
+        if (localStorage.getItem('m_api')) apiInput.value = localStorage.getItem('m_api');
 
-        // Auto-load URL from localStorage
-        if (localStorage.getItem('mechanic_url')) {
-            nodeUrlInput.value = localStorage.getItem('mechanic_url');
+        function addLog(msg, type = '') {
+            const time = new Date().toLocaleTimeString('en-GB', { hour12: false });
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+
+            let tag = '';
+            if (type) tag = `<span class="log-tag tag-${type}">[${type.toUpperCase()}]</span>`;
+
+            entry.innerHTML = `<span class="log-time">${time}</span>${tag}${msg}`;
+            consoleOut.prepend(entry);
         }
 
-        function addLog(msg, status = '') {
-            const time = new Date().toLocaleTimeString('en-US', { hour12: false });
-            const line = document.createElement('div');
-            line.className = 'log-line';
-            line.innerHTML = `
-                <span class="log-time">${time}</span>
-                <span class="log-msg ${status ? 'log-status-' + status : ''}">${msg}</span>
-            `;
-            consoleArea.prepend(line);
-        }
+        launchBtn.onclick = async () => {
+            const api = apiInput.value.trim();
+            if (!api) return addLog("CRITICAL: API LINK MISSING", "err");
+            localStorage.setItem('m_api', api);
 
-        runBtn.onclick = async () => {
-            const apiBase = nodeUrlInput.value.trim();
-            if (!apiBase) {
-                addLog("ERROR: Node API URL required", "err");
-                return;
-            }
-            localStorage.setItem('mechanic_url', apiBase);
-
-            const payload = {
-                url: document.getElementById('url').value,
-                concurrency: parseInt(document.getElementById('concurrency').value),
-                count: parseInt(document.getElementById('count').value),
-                timeout: 5
+            const body = {
+                url: document.getElementById('target').value,
+                concurrency: parseInt(document.getElementById('workers').value),
+                count: parseInt(document.getElementById('requests').value)
             };
 
-            runBtn.disabled = true;
-            runBtn.innerText = "EXECUTING...";
-            pBar.style.display = 'block';
-            pFill.style.width = '10%';
+            launchBtn.disabled = true;
+            launchBtn.innerText = "OVERLOADING...";
+            loadBar.style.width = "20%";
 
-            addLog(`Launching session on ${payload.url}...`);
-            addLog(`Allocating ${payload.concurrency} worker threads...`);
+            addLog(`PREPARING SEQUENCE: ${body.url}`, "exe");
+            addLog(`SPAWNING ${body.concurrency} INDEPENDENT WORKERS...`);
 
             try {
-                const startTime = Date.now();
-                const response = await fetch(`${apiBase}/api/probe`, {
+                const s = Date.now();
+                const r = await fetch(`${api}/api/probe`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify(body)
                 });
 
-                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                if (!r.ok) throw new Error(`CORE ERROR ${r.status}`);
+                const data = await r.json();
 
-                const data = await response.json();
-                const totalTime = ((Date.now() - startTime) / 1000).toFixed(2);
-
-                // Update Stats
+                // Update UI
                 const rate = ((data.results.success_count / data.results.total_requests) * 100).toFixed(1);
-                document.getElementById('stat-ok').innerText = `${rate}%`;
-                document.getElementById('stat-lat').innerText = `${data.latency_ms}ms`;
+                document.getElementById('res-rate').innerText = `${rate}%`;
+                document.getElementById('res-time').innerHTML = `${data.latency_ms}<span style="font-size: 1rem">MS</span>`;
+                document.getElementById('res-count').innerText = data.results.total_requests;
 
-                pFill.style.width = '100%';
-                addLog(`Sequence complete in ${totalTime}s`, "ok");
-                addLog(`Results: ${data.results.success_count} OK / ${data.results.error_count} ERR`);
+                loadBar.style.width = "100%";
+                addLog(`TARGET BREACHED: ${data.results.success_count} SUCCESS`, "res");
+                addLog(`LATENCY_STABLE: ${data.latency_ms}ms`);
 
             } catch (err) {
-                addLog(`CRITICAL: ${err.message}`, "err");
-                pFill.style.backgroundColor = 'var(--error)';
+                addLog(`DEPLOYMENT FAILED: ${err.message}`, "err");
+                loadBar.style.backgroundColor = "var(--danger)";
             } finally {
-                runBtn.disabled = false;
-                runBtn.innerText = "INITIALIZE ENGINE";
-                setTimeout(() => { pBar.style.display = 'none'; pFill.style.width = '0%'; pFill.style.backgroundColor = 'var(--accent)'; }, 3000);
+                launchBtn.disabled = false;
+                launchBtn.innerText = "ENGAGE CORE";
+                setTimeout(() => { loadBar.style.width = "0%"; loadBar.style.backgroundColor = "var(--accent)"; }, 3000);
             }
         };
+
+        // Fake Uptime
+        setInterval(() => {
+            const now = new Date();
+            document.getElementById('uptime').innerText = now.toLocaleTimeString('en-GB');
+        }, 1000);
     </script>
 </body>
 
