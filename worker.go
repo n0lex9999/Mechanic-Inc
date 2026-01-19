@@ -16,15 +16,25 @@ type Result struct {
 }
 
 // Worker process targets from a channel and sends results back
+// OPTIMIZED: Minimal allocations, fast body drain
 func Worker(id int, targets <-chan string, results chan<- Result, client *http.Client, wg *sync.WaitGroup) {
 	defer wg.Done()
+
+	// Reusable buffer for draining body
+	buf := make([]byte, 512)
+
 	for url := range targets {
 		start := time.Now()
-		req, err := http.NewRequest("GET", url, nil)
+
+		req, err := http.NewRequest("HEAD", url, nil) // HEAD is faster than GET
 		if err != nil {
 			results <- Result{URL: url, Err: err}
 			continue
 		}
+
+		// Minimal headers for speed
+		req.Header.Set("User-Agent", "Mozilla/5.0")
+		req.Header.Set("Connection", "keep-alive")
 
 		resp, err := client.Do(req)
 		duration := time.Since(start)
@@ -37,8 +47,8 @@ func Worker(id int, targets <-chan string, results chan<- Result, client *http.C
 
 		if err == nil {
 			res.StatusCode = resp.StatusCode
-			// Effleurement du body pour permettre la réutilisation du socket TCP
-			io.Copy(io.Discard, resp.Body)
+			// Fast body drain using small buffer
+			io.CopyBuffer(io.Discard, resp.Body, buf)
 			resp.Body.Close()
 		}
 
