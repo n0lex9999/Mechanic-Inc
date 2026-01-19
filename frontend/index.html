@@ -473,7 +473,10 @@
                     body: JSON.stringify(body)
                 });
 
-                if (!r.ok) throw new Error(`CORE ERROR ${r.status}`);
+                if (!r.ok) {
+                    const text = await r.text();
+                    throw new Error(`CORE ERROR ${r.status}: ${text.length > 50 ? text.substring(0, 50) + "..." : text}`);
+                }
                 const data = await r.json();
 
                 // Update UI

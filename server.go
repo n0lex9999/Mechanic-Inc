@@ -10,7 +10,7 @@ import (
 
 func handleIndex(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
-	fmt.Fprintf(w, dashboardHTML)
+	fmt.Fprint(w, dashboardHTML)
 }
 
 func StartWebServer(port int) {

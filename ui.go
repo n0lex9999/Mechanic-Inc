@@ -6,231 +6,411 @@ const dashboardHTML = `
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mechanic Dashboard</title>
+    <title>MECHANIC | EXPLOITATION CORE</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #0d0d0d;
-            --panel: #1a1a1a;
-            --accent: #ff4d00;
-            --text: #e0e0e0;
-            --secondary: #00ccff;
-            --success: #00ff88;
+            --bg: #030305;
+            --panel: #08080a;
+            --accent: #ff003c;
+            --accent-glow: rgba(255, 0, 60, 0.4);
+            --accent-soft: rgba(255, 0, 60, 0.1);
+            --text: #ffffff;
+            --text-dim: #4a4a4f;
+            --success: #00ffaa;
+            --warning: #ffcc00;
+            --danger: #ff003c;
         }
+
+        * { cursor: crosshair; }
 
         body {
             background-color: var(--bg);
             color: var(--text);
-            font-family: 'Segoe UI', Roboto, sans-serif;
+            font-family: 'Outfit', sans-serif;
             margin: 0;
             display: flex;
-            flex-direction: column;
+            justify-content: center;
             align-items: center;
             min-height: 100vh;
+            overflow: hidden;
+            background-image: 
+                radial-gradient(circle at 50% 50%, #101015 0%, transparent 100%),
+                linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
+                linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 100%, 100% 4px, 100% 100%;
         }
 
-        .header {
-            width: 100%;
-            padding: 2rem;
-            text-align: center;
-            background: linear-gradient(180deg, #1f1f1f 0%, transparent 100%);
-            border-bottom: 2px solid var(--accent);
+        .scanline {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 2px;
+            background: rgba(255, 255, 255, 0.05);
+            opacity: 0.1;
+            z-index: 100;
+            pointer-events: none;
+            animation: scanline 8s linear infinite;
         }
 
-        .header h1 {
-            margin: 0;
-            letter-spacing: 4px;
-            color: var(--accent);
-            text-shadow: 0 0 10px rgba(255, 77, 0, 0.5);
+        @keyframes scanline {
+            0% { transform: translateY(-100vh); }
+            100% { transform: translateY(100vh); }
         }
 
-        .container {
-            width: 90%;
-            max-width: 1000px;
-            margin-top: 2rem;
+        .main-container {
+            width: 1100px;
+            height: 750px;
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
+            grid-template-columns: 380px 1fr;
+            gap: 20px;
+            padding: 20px;
+            background: rgba(10, 10, 12, 0.8);
+            border: 1px solid #1a1a20;
+            border-radius: 4px;
+            backdrop-filter: blur(20px);
+            position: relative;
+            box-shadow: 0 0 50px rgba(0,0,0,1);
         }
 
-        @media (max-width: 768px) {
-            .container { grid-template-columns: 1fr; }
+        .main-container::after {
+            content: 'UNIT-01 // MECHANIC ENGINE';
+            position: absolute;
+            bottom: -25px; left: 0;
+            font-family: 'JetBrains Mono';
+            font-size: 0.6rem;
+            color: var(--text-dim);
+            letter-spacing: 2px;
         }
 
-        .card {
-            background: var(--panel);
-            padding: 2rem;
-            border-radius: 8px;
-            border-left: 4px solid var(--accent);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        .side-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            padding-right: 20px;
+            border-right: 1px solid #1a1a20;
         }
 
-        .form-group {
-            margin-bottom: 1.5rem;
+        h1 {
+            font-weight: 900;
+            font-size: 3rem;
+            margin: 0;
+            letter-spacing: -3px;
+            font-style: italic;
+            color: #fff;
+            text-shadow: 2px 2px 0px var(--accent);
+        }
+
+        .status-dot {
+            display: inline-block;
+            width: 8px; height: 8px;
+            background: var(--success);
+            border-radius: 50%;
+            margin-right: 10px;
+            box-shadow: 0 0 10px var(--success);
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink { 
+            0%, 100% { opacity: 1; } 
+            50% { opacity: 0.3; } 
+        }
+
+        .input-box {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
         }
 
         label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: var(--secondary);
-            font-size: 0.9rem;
+            font-family: 'JetBrains Mono';
+            font-size: 0.65rem;
+            color: var(--accent);
             text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         input {
-            width: 100%;
-            padding: 0.8rem;
-            background: #2a2a2a;
-            border: 1px solid #333;
+            background: #000;
+            border: 1px solid #222;
+            padding: 15px;
             color: #fff;
-            border-radius: 4px;
-            outline: none;
-            box-sizing: border-box;
+            font-family: 'JetBrains Mono';
+            font-size: 0.85rem;
+            transition: 0.2s;
+            border-radius: 2px;
         }
 
         input:focus {
+            outline: none;
             border-color: var(--accent);
+            box-shadow: 0 0 15px var(--accent-soft);
         }
 
-        button {
-            width: 100%;
-            padding: 1rem;
+        .control-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .btn-launch {
             background: var(--accent);
-            color: white;
+            color: #fff;
             border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
+            padding: 25px;
+            font-family: 'Outfit';
+            font-weight: 900;
+            font-size: 1.2rem;
             text-transform: uppercase;
-            transition: 0.3s;
+            letter-spacing: 2px;
+            margin-top: auto;
+            position: relative;
+            clip-path: polygon(0 0, 100% 0, 100% 70%, 90% 100%, 0 100%);
+            transition: 0.2s;
         }
 
-        button:hover {
-            background: #e64500;
-            box-shadow: 0 0 15px rgba(255, 77, 0, 0.4);
+        .btn-launch:hover:not(:disabled) {
+            transform: scale(1.02);
+            filter: brightness(1.2);
+            box-shadow: 0 0 30px var(--accent-glow);
         }
 
-        .results {
+        .btn-launch:active { transform: scale(0.98); }
+
+        .btn-launch:disabled {
+            background: #1a1a1a;
+            color: #333;
+            clip-path: none;
+        }
+
+        .dashboard {
             display: flex;
             flex-direction: column;
-            gap: 1rem;
+            gap: 20px;
         }
 
-        .stat-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 0.5rem 0;
-            border-bottom: 1px solid #333;
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .stat-card {
+            background: #000;
+            border: 1px solid #1a1a20;
+            padding: 20px;
+            position: relative;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 4px; height: 100%;
+            background: var(--accent);
+        }
+
+        .stat-meta {
+            font-family: 'JetBrains Mono';
+            font-size: 0.6rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
         }
 
         .stat-value {
-            font-weight: bold;
-            color: var(--success);
+            font-size: 2.5rem;
+            font-weight: 900;
+            margin-top: 5px;
+            font-family: 'JetBrains Mono';
         }
 
-        .logs {
-            grid-column: 1 / -1;
+        .console-container {
+            flex-grow: 1;
             background: #000;
-            padding: 1rem;
-            border-radius: 4px;
-            font-family: 'Courier New', monospace;
-            height: 200px;
-            overflow-y: auto;
-            border: 1px solid #333;
-            font-size: 0.8rem;
+            border: 1px solid #1a1a20;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
         }
 
-        .log-entry { margin-bottom: 0.2rem; }
-        .log-time { color: #666; }
-        .log-msg { color: #bbb; }
+        .console-header {
+            background: #0a0a0f;
+            padding: 10px 15px;
+            font-family: 'JetBrains Mono';
+            font-size: 0.6rem;
+            color: var(--text-dim);
+            border-bottom: 1px solid #1a1a20;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        #console-output {
+            padding: 15px;
+            font-family: 'JetBrains Mono';
+            font-size: 0.75rem;
+            color: #00ffaa;
+            overflow-y: auto;
+            text-shadow: 0 0 5px rgba(0, 255, 170, 0.4);
+            display: flex;
+            flex-direction: column-reverse;
+        }
+
+        .log-entry { margin-bottom: 4px; }
+        .log-time { color: #444; margin-right: 10px; }
+        .log-tag { font-weight: 700; margin-right: 10px; }
+        .tag-exe { color: var(--warning); }
+        .tag-res { color: var(--success); }
+        .tag-err { color: var(--danger); }
+
+        .loading-bar {
+            position: absolute;
+            bottom: 0; left: 0;
+            height: 4px;
+            background: var(--accent);
+            width: 0%;
+            transition: 0.3s;
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        .corner-decor {
+            position: absolute;
+            width: 20px; height: 20px;
+            border: 2px solid var(--accent);
+        }
+        .c-tl { top: -2px; left: -2px; border-right: none; border-bottom: none; }
+        .c-tr { top: -2px; right: -2px; border-left: none; border-bottom: none; }
+        .c-bl { bottom: -2px; left: -2px; border-right: none; border-top: none; }
+        .c-br { bottom: -2px; right: -2px; border-left: none; border-top: none; }
+
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>MECHANIC INC.</h1>
-        <p>Advanced NetProbing Suite</p>
-    </div>
 
-    <div class="container">
-        <div class="card">
-            <h2>Configuration</h2>
-            <div class="form-group">
-                <label>Target URL</label>
-                <input type="text" id="url" placeholder="https://example.com" value="http://example.com">
+    <div class="scanline"></div>
+
+    <div class="main-container">
+        <div class="c-tl corner-decor"></div>
+        <div class="c-tr corner-decor"></div>
+        <div class="c-bl corner-decor"></div>
+        <div class="c-br corner-decor"></div>
+
+        <div class="side-panel">
+            <h1>MECHANIC</h1>
+            <div style="font-size: 0.7rem; color: var(--text-dim); letter-spacing: 2px;">
+                <span class="status-dot"></span> SYSTEM ONLINE // V3.0
             </div>
-            <div class="form-group">
-                <label>Concurrency (Workers)</label>
-                <input type="number" id="concurrency" value="10">
+
+            <div class="input-box">
+                <label>Target Entry (URL or IP)</label>
+                <input type="text" id="target" value="1.1.1.1" placeholder="example.com">
             </div>
-            <div class="form-group">
-                <label>Total Requests</label>
-                <input type="number" id="count" value="100">
+
+            <div class="control-grid">
+                <div class="input-box">
+                    <label>Workers</label>
+                    <input type="number" id="workers" value="100">
+                </div>
+                <div class="input-box">
+                    <label>Requests</label>
+                    <input type="number" id="requests" value="1000">
+                </div>
             </div>
-            <button id="runBtn">Lancer le Probe</button>
+
+            <button class="btn-launch" id="launchBtn">ENGAGE CORE</button>
         </div>
 
-        <div class="card">
-            <h2>Dernier Résultat</h2>
-            <div id="resultContent" class="results">
-                <p style="color: #666;">Aucun test effectué</p>
+        <div class="dashboard">
+            <div class="stats-row">
+                <div class="stat-card">
+                    <div class="stat-meta">Success / Loss</div>
+                    <div class="stat-value" id="res-rate">0%</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-meta">Response Delay</div>
+                    <div class="stat-value" id="res-time">0<span style="font-size: 1rem">MS</span></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-meta">Total Objects</div>
+                    <div class="stat-value" id="res-count">0</div>
+                </div>
             </div>
-        </div>
 
-        <div class="logs" id="logs">
-            <div class="log-entry"><span class="log-time">[H:M:S]</span> <span class="log-msg">Système prêt...</span></div>
+            <div class="console-container">
+                <div class="console-header">
+                    <span>> TERMINAL_OUTPUT</span>
+                    <span id="uptime">00:00:00</span>
+                </div>
+                <div id="console-output">
+                    <div class="log-entry">AWAITING TARGET COMMAND...</div>
+                </div>
+                <div class="loading-bar" id="loadBar"></div>
+            </div>
         </div>
     </div>
 
     <script>
-        const runBtn = document.getElementById('runBtn');
-        const logs = document.getElementById('logs');
-        const resultContent = document.getElementById('resultContent');
+        const launchBtn = document.getElementById('launchBtn');
+        const consoleOut = document.getElementById('console-output');
+        const loadBar = document.getElementById('loadBar');
 
-        function addLog(msg) {
-            const time = new Date().toLocaleTimeString();
-            const div = document.createElement('div');
-            div.className = 'log-entry';
-            div.innerHTML = ` + "`" + `<span class="log-time">[${time}]</span> <span class="log-msg">${msg}</span>` + "`" + `;
-            logs.appendChild(div);
-            logs.scrollTop = logs.scrollHeight;
+        function addLog(msg, type = '') {
+            const time = new Date().toLocaleTimeString('en-GB', { hour12: false });
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            
+            let tag = '';
+            if(type) tag = '<span class="log-tag tag-' + type + '">[' + type.toUpperCase() + ']</span>';
+
+            entry.innerHTML = '<span class="log-time">' + time + '</span>' + tag + msg;
+            consoleOut.prepend(entry);
         }
 
-        runBtn.onclick = async () => {
-            const url = document.getElementById('url').value;
-            const concurrency = parseInt(document.getElementById('concurrency').value);
-            const count = parseInt(document.getElementById('count').value);
+        launchBtn.onclick = async () => {
+            const body = {
+                url: document.getElementById('target').value,
+                concurrency: parseInt(document.getElementById('workers').value),
+                count: parseInt(document.getElementById('requests').value)
+            };
 
-            addLog(` + "`" + `Lancement du probe sur ${url}...` + "`" + `);
-            runBtn.disabled = true;
-            runBtn.innerText = "Traitement...";
+            launchBtn.disabled = true;
+            launchBtn.innerText = "OVERLOADING...";
+            loadBar.style.width = "20%";
+            
+            addLog('PREPARING SEQUENCE: ' + body.url, "exe");
 
             try {
-                const res = await fetch('/api/probe', {
+                const r = await fetch('/api/probe', {
                     method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({url, concurrency, count})
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
                 });
-                const data = await res.json();
 
-                if (data.status === 'success') {
-                    addLog(` + "`" + `Terminé ! Latence moy: ${data.latency_ms}ms` + "`" + `);
-                    renderResults(data.results, data.latency_ms);
+                if(!r.ok) {
+                    const text = await r.text();
+                    throw new Error('CORE ERROR ' + r.status + ': ' + (text.length > 50 ? text.substring(0, 50) + "..." : text));
                 }
+                
+                const data = await r.json();
+                
+                const rate = ((data.results.success_count / data.results.total_requests) * 100).toFixed(1);
+                document.getElementById('res-rate').innerText = rate + '%';
+                document.getElementById('res-time').innerHTML = data.latency_ms + '<span style="font-size: 1rem">MS</span>';
+                document.getElementById('res-count').innerText = data.results.total_requests;
+                
+                loadBar.style.width = "100%";
+                addLog('TARGET BREACHED: ' + data.results.success_count + ' SUCCESS', "res");
+
             } catch (err) {
-                addLog(` + "`" + `Erreur: ${err.message}` + "`" + `);
+                addLog('DEPLOYMENT FAILED: ' + err.message, "err");
+                loadBar.style.backgroundColor = "var(--danger)";
             } finally {
-                runBtn.disabled = false;
-                runBtn.innerText = "Lancer le Probe";
+                launchBtn.disabled = false;
+                launchBtn.innerText = "ENGAGE CORE";
+                setTimeout(() => { loadBar.style.width = "0%"; loadBar.style.backgroundColor = "var(--accent)"; }, 3000);
             }
         };
 
-        function renderResults(res, lat) {
-            resultContent.innerHTML = ` + "`" + `
-                <div class="stat-item"><span>Total</span><span class="stat-value">${res.total_requests}</span></div>
-                <div class="stat-item"><span>Succès</span><span class="stat-value" style="color: #00ff88">${res.success_count}</span></div>
-                <div class="stat-item"><span>Échecs</span><span class="stat-value" style="color: #ff4d00">${res.error_count}</span></div>
-                <div class="stat-item"><span>Latence Moy.</span><span class="stat-value">${lat}ms</span></div>
-            ` + "`" + `;
-        }
+        setInterval(() => {
+            document.getElementById('uptime').innerText = new Date().toLocaleTimeString('en-GB');
+        }, 1000);
     </script>
 </body>
 </html>
