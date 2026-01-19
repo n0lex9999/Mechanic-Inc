@@ -1,6 +1,7 @@
 package main
 
 import (
+	"io"
 	"net/http"
 	"sync"
 	"time"
@@ -19,7 +20,13 @@ func Worker(id int, targets <-chan string, results chan<- Result, client *http.C
 	defer wg.Done()
 	for url := range targets {
 		start := time.Now()
-		resp, err := client.Get(url)
+		req, err := http.NewRequest("GET", url, nil)
+		if err != nil {
+			results <- Result{URL: url, Err: err}
+			continue
+		}
+
+		resp, err := client.Do(req)
 		duration := time.Since(start)
 
 		res := Result{
@@ -30,6 +37,8 @@ func Worker(id int, targets <-chan string, results chan<- Result, client *http.C
 
 		if err == nil {
 			res.StatusCode = resp.StatusCode
+			// Effleurement du body pour permettre la réutilisation du socket TCP
+			io.Copy(io.Discard, resp.Body)
 			resp.Body.Close()
 		}
 

@@ -4,22 +4,45 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 )
 
-func StartWebServer(port int) {
-	http.HandleFunc("/", handleIndex)
-	http.HandleFunc("/api/probe", handleProbe)
-
-	fmt.Printf("[*] Web Dashboard started on http://localhost:%d\n", port)
-	if err := http.ListenAndServe(fmt.Sprintf(":%d", port), nil); err != nil {
-		fmt.Printf("[!] Server error: %v\n", err)
-	}
-}
-
 func handleIndex(w http.ResponseWriter, r *http.Request) {
-	// We'll serve the HTML content here (defined in another file or as a string)
 	w.Header().Set("Content-Type", "text/html")
 	fmt.Fprintf(w, dashboardHTML)
+}
+
+func StartWebServer(port int) {
+	mux := http.NewServeMux()
+
+	// Better logging middleware
+	loggingMiddleware := func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			start := time.Now()
+			next.ServeHTTP(w, r)
+			fmt.Printf("[LOG] %s %s | %v | %s\n", r.Method, r.URL.Path, time.Since(start), r.RemoteAddr)
+		})
+	}
+
+	mux.HandleFunc("/", handleIndex)
+	mux.HandleFunc("/api/probe", handleProbe)
+
+	// Robust CORS
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+		if r.Method == "OPTIONS" {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+		loggingMiddleware(mux).ServeHTTP(w, r)
+	})
+
+	fmt.Printf("[*] MECHANIC CORE - Engine started on port %d\n", port)
+	if err := http.ListenAndServe(fmt.Sprintf(":%d", port), handler); err != nil {
+		fmt.Printf("[CRITICAL] Server failure: %v\n", err)
+	}
 }
 
 type ProbeRequest struct {
@@ -31,33 +54,45 @@ type ProbeRequest struct {
 
 func handleProbe(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
 	var req ProbeRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		fmt.Printf("[ERR] Invalid JSON payload from %s\n", r.RemoteAddr)
+		http.Error(w, "Invalid payload", http.StatusBadRequest)
 		return
 	}
 
-	// Default values if not provided
-	if req.Concurrency == 0 {
+	// Sanitize & Default
+	if req.Concurrency <= 0 {
 		req.Concurrency = 10
 	}
-	if req.Count == 0 {
+	if req.Count <= 0 {
 		req.Count = 100
 	}
-	if req.Timeout == 0 {
-		req.Timeout = 5
+	if req.Timeout <= 0 {
+		req.Timeout = 10
 	}
+	if req.Concurrency > 200 {
+		req.Concurrency = 200
+	} // Limit for safety
 
+	fmt.Printf("[EXE] Starting Probe -> Target: %s | Workers: %d | Total: %d\n", req.URL, req.Concurrency, req.Count)
+
+	// Core execution with performance monitoring
+	start := time.Now()
 	stats := PerformProbe(req.URL, req.Concurrency, req.Count, req.Timeout)
+	duration := time.Since(start)
 
-	w.Header().Set("Content-Type", "json")
+	fmt.Printf("[RES] Probe Finished -> Success: %d | Errors: %d | Time: %v\n", stats.SuccessCount, stats.ErrorCount, duration)
+
+	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"status":     "success",
 		"results":    stats,
 		"latency_ms": stats.AvgLatency.Milliseconds(),
+		"total_time": duration.String(),
 	})
 }

@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MECHANIC INC | Advanced Prober</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700&family=JetBrains+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #050505;
+            --panel: #0a0a0a;
+            --accent: #ff4d00;
+            --accent-soft: rgba(255, 77, 0, 0.1);
+            --text: #ffffff;
+            --text-dim: #777;
+            --success: #00ffa3;
+            --error: #ff2a6d;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Outfit', sans-serif;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 400px 600px;
+            gap: 30px;
+            width: 1000px;
+            height: 700px;
+            z-index: 10;
+        }
+
+        .panel {
+            background: var(--panel);
+            border: 1px solid #1a1a1a;
+            border-radius: 32px;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+        }
+
+        h1 {
+            font-weight: 700;
+            font-size: 2.5rem;
+            margin: 0;
+            letter-spacing: -2px;
+            background: linear-gradient(to bottom, #fff, #444);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .tagline {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            color: var(--accent);
+            margin-bottom: 40px;
+            font-weight: 700;
+        }
+
+        .form-item {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-dim);
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        input {
+            width: 100%;
+            background: #111;
+            border: 1px solid #222;
+            border-radius: 16px;
+            padding: 16px;
+            color: white;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            box-sizing: border-box;
+            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 20px var(--accent-soft);
+            background: #151515;
+        }
+
+        .btn-action {
+            width: 100%;
+            padding: 24px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: auto;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-action:hover {
+            box-shadow: 0 15px 30px var(--accent-soft);
+            transform: translateY(-2px);
+        }
+
+        .btn-action:active {
+            transform: translateY(0);
+        }
+
+        .btn-action:disabled {
+            background: #222;
+            color: #555;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .dashboard {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .stat-banner {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .stat-box {
+            background: #0d0d0d;
+            border: 1px solid #1a1a1a;
+            border-radius: 24px;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--success);
+        }
+
+        .console {
+            flex-grow: 1;
+            background: #050505;
+            border: 1px solid #1a1a1a;
+            border-radius: 24px;
+            padding: 20px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: #444;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column-reverse;
+        }
+
+        .log-line {
+            margin-bottom: 5px;
+            line-height: 1.4;
+            border-left: 2px solid #222;
+            padding-left: 10px;
+        }
+
+        .log-time {
+            color: #333;
+            margin-right: 10px;
+        }
+
+        .log-msg {
+            color: #888;
+        }
+
+        .log-status-ok {
+            color: var(--success);
+        }
+
+        .log-status-err {
+            color: var(--error);
+        }
+
+        .progress-bar {
+            height: 4px;
+            background: #111;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--accent);
+            width: 0%;
+            transition: 0.3s;
+        }
+
+        /* Abstract Background */
+        .orb {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, var(--accent-soft) 0%, transparent 70%);
+            z-index: -1;
+            filter: blur(80px);
+            animation: move 20s infinite alternate;
+        }
+
+        @keyframes move {
+            from {
+                transform: translate(-30%, -30%);
+            }
+
+            to {
+                transform: translate(30%, 30%);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="orb"></div>
+
+    <div class="main-grid">
+        <!-- Configuration Side -->
+        <div class="panel">
+            <h1>MECHANIC</h1>
+            <p class="tagline">Engine v2.0</p>
+
+            <div class="form-item">
+                <label>Target Core URL</label>
+                <input type="text" id="url" value="https://google.com" placeholder="https://...">
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div class="form-item">
+                    <label>Threads</label>
+                    <input type="number" id="concurrency" value="50">
+                </div>
+                <div class="form-item">
+                    <label>Cycles</label>
+                    <input type="number" id="count" value="500">
+                </div>
+            </div>
+
+            <div class="form-item">
+                <label>Auth / Node API URL</label>
+                <input type="text" id="nodeUrl" value="" placeholder="Koyeb URL here...">
+            </div>
+
+            <button class="btn-action" id="runBtn">INITIALIZE ENGINE</button>
+        </div>
+
+        <!-- Dashboard Side -->
+        <div class="panel dashboard">
+            <div class="stat-banner">
+                <div class="stat-box">
+                    <span class="stat-label">Success Rate</span>
+                    <span class="stat-value" id="stat-ok">0%</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-label">Avg Latency</span>
+                    <span class="stat-value" id="stat-lat">-- ms</span>
+                </div>
+            </div>
+
+            <div class="progress-bar" id="pBar">
+                <div class="progress-fill" id="pFill"></div>
+            </div>
+
+            <div class="console" id="console">
+                <div class="log-line"><span class="log-time">[SYSTEM]</span><span class="log-msg">READY. Awaiting
+                        sequence...</span></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const runBtn = document.getElementById('runBtn');
+        const consoleArea = document.getElementById('console');
+        const pBar = document.getElementById('pBar');
+        const pFill = document.getElementById('pFill');
+
+        const nodeUrlInput = document.getElementById('nodeUrl');
+
+        // Auto-load URL from localStorage
+        if (localStorage.getItem('mechanic_url')) {
+            nodeUrlInput.value = localStorage.getItem('mechanic_url');
+        }
+
+        function addLog(msg, status = '') {
+            const time = new Date().toLocaleTimeString('en-US', { hour12: false });
+            const line = document.createElement('div');
+            line.className = 'log-line';
+            line.innerHTML = `
+                <span class="log-time">${time}</span>
+                <span class="log-msg ${status ? 'log-status-' + status : ''}">${msg}</span>
+            `;
+            consoleArea.prepend(line);
+        }
+
+        runBtn.onclick = async () => {
+            const apiBase = nodeUrlInput.value.trim();
+            if (!apiBase) {
+                addLog("ERROR: Node API URL required", "err");
+                return;
+            }
+            localStorage.setItem('mechanic_url', apiBase);
+
+            const payload = {
+                url: document.getElementById('url').value,
+                concurrency: parseInt(document.getElementById('concurrency').value),
+                count: parseInt(document.getElementById('count').value),
+                timeout: 5
+            };
+
+            runBtn.disabled = true;
+            runBtn.innerText = "EXECUTING...";
+            pBar.style.display = 'block';
+            pFill.style.width = '10%';
+
+            addLog(`Launching session on ${payload.url}...`);
+            addLog(`Allocating ${payload.concurrency} worker threads...`);
+
+            try {
+                const startTime = Date.now();
+                const response = await fetch(`${apiBase}/api/probe`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+                const data = await response.json();
+                const totalTime = ((Date.now() - startTime) / 1000).toFixed(2);
+
+                // Update Stats
+                const rate = ((data.results.success_count / data.results.total_requests) * 100).toFixed(1);
+                document.getElementById('stat-ok').innerText = `${rate}%`;
+                document.getElementById('stat-lat').innerText = `${data.latency_ms}ms`;
+
+                pFill.style.width = '100%';
+                addLog(`Sequence complete in ${totalTime}s`, "ok");
+                addLog(`Results: ${data.results.success_count} OK / ${data.results.error_count} ERR`);
+
+            } catch (err) {
+                addLog(`CRITICAL: ${err.message}`, "err");
+                pFill.style.backgroundColor = 'var(--error)';
+            } finally {
+                runBtn.disabled = false;
+                runBtn.innerText = "INITIALIZE ENGINE";
+                setTimeout(() => { pBar.style.display = 'none'; pFill.style.width = '0%'; pFill.style.backgroundColor = 'var(--accent)'; }, 3000);
+            }
+        };
+    </script>
+</body>
+
+</html>
